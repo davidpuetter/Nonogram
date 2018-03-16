@@ -12,6 +12,51 @@
   <link rel="stylesheet" href="https://bootswatch.com/3/journal/bootstrap.min.css">
   <script src="nonogram.min.js"></script>
   <script>
+    function gridFromImgFile(callback) {
+      var inputFileList = document.getElementById('load-from-file').files;
+      if (!inputFileList.length) {
+        return callback();
+      }
+      var reader = new FileReader();
+      reader.onloadend = () => {
+        var image = new Image();
+        image.src = reader.result;
+        if (image.width > 100 || image.height > 100) {
+          var msg = `Invalid image of size ${image.width}x${image.height}, must be less than 100x100`;
+          alert(msg);
+          throw new Error(msg);
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+        var imageData = ctx.getImageData(0, 0, image.width, image.height);
+        var pix = imageData.data;
+
+        var isBlackAndWhite = true;
+        for (var i = 0, n = pix.length; i < n; i += 4) {
+            if ((pix[i] != 0 && pix[i] != 255)
+             || pix[i+1] != pix[i] || pix[i+2] != pix[i]) {
+                console.log(i, pix[i], pix[i+1], pix[i+2]);
+                isBlackAndWhite = false;
+                break;
+            }
+        }
+        if (isBlackAndWhite) {
+            var grid = new Array(image.width);
+            for (let i = 0; i < image.width; i += 1) {
+              grid[i] = new Array(image.height)
+              for (let j = 0; j < image.height; j += 1) {
+                grid[i][j] = pix[j*image.width+i] / 255;
+              }
+            }
+            return callback(grid);
+        }
+        throw new Error('Not implemented yet');
+      }
+      reader.readAsDataURL(inputFileList[0]);
+    }
     document.addEventListener('DOMContentLoaded', () => {
       Array.from(document.querySelectorAll('pre')).forEach(pre => {
         pre.className = 'brush:js;toolbar:false;gutter:false'
@@ -225,6 +270,10 @@ new
         <label for="threshold">threshold</label>
         <input type="range" id="threshold" class="form-control" min="0" max="1" step="0.01" value="0.5">
       </div>
+      <label class="custom-file">
+        <input type="file" id="load-from-file" class="custom-file-input">
+        <span class="custom-file-control"></span>
+      </label>
     </div>
     <div class="col-md-3">
       <canvas id="adv-edit1"></canvas>
@@ -237,13 +286,21 @@ new
     </div>
   </div>
   <pre>
-function f() {
+function f(grid) {
+  var m = +document.getElementById('m').value,
+      n = +document.getElementById('n').value;
+  if (grid || window.advEditor1) {
+    if (!grid) {
+      grid = window.advEditor1.grid;
+    }
+    m = grid.length;
+    n = grid[0].length;
+  }
   window.advEditor1 = new nonogram.Editor(
-    +document.getElementById('m').value,
-    +document.getElementById('n').value,
+    m, n,
     'adv-edit1',
     { threshold: +document.getElementById('threshold').value,
-      grid: window.advEditor1 ? window.advEditor1.grid : undefined,
+      grid: grid,
       onHintChange(row, column) {
         new nonogram.Game(row, column, 'adv-play1', { theme: { boldMeshGap: 0 } })
         new nonogram.Solver(row, column, 'adv-solve1').solve()
@@ -252,6 +309,7 @@ function f() {
 document.getElementById('m').addEventListener('change', f)
 document.getElementById('n').addEventListener('change', f)
 document.getElementById('threshold').addEventListener('change', f)
+document.getElementById('load-from-file').addEventListener('change', () => gridFromImgFile(f))
 f()</pre>
 
   <h3 id="nonogram-solver">Interactive Nonogram Solver</h3>
