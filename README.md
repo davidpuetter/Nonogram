@@ -2,6 +2,8 @@
 
 [![demo](http://i.imgur.com/XRs3jk7.gif)](https://Lucas-C.github.io/Nonogram)
 
+[![Build Status](https://travis-ci.org/Lucas-C/Nonogram.svg?branch=develop)](https://travis-ci.org/Lucas-C/Nonogram)
+
 This is a fork of the original awesome nonogram (also known as hanjie, picross and griddlers) editor and solver by HandsomeOne.
 
 I only added the load from file / save as PNG features.
