@@ -315,7 +315,8 @@ new
         <input type="file" id="load-from-file" class="custom-file-input">
         <span class="custom-file-control"></span>
       </label>
-      <a id="download-link" class="btn btn-success" download="nonogram.png">Save nonogram as image</a>
+      <a id="pattern-download-link" class="btn btn-success" download="nonogram-pattern.png">Save nonogram pattern as image</a>
+      <a id="hints-grid-download-link" class="btn btn-info" download="nonogram-hints-grid.png">Save nonogram grid &amp; hints as image</a>
     </div>
     <div class="col-md-3">
       <canvas id="adv-edit1"></canvas>
@@ -347,7 +348,8 @@ function f(grid) {
         new nonogram.Game(row, column, 'adv-play1', { theme: { boldMeshGap: 0 } })
         new nonogram.Solver(row, column, 'adv-solve1').solve()
       } })
-  document.getElementById('download-link').href = gridToBase64Img(window.advEditor1.grid);
+  document.getElementById('pattern-download-link').href = gridToBase64Img(window.advEditor1.grid);
+  document.getElementById('hints-grid-download-link').href = document.getElementById('adv-play1').toDataURL();
 }
 document.getElementById('m').addEventListener('change', f)
 document.getElementById('n').addEventListener('change', f)
