@@ -333,11 +333,12 @@ function f(grid) {
   var m = +document.getElementById('m').value,
       n = +document.getElementById('n').value;
   if ((grid && grid.length) || window.advEditor1) {
-    if (!(grid && grid.length)) {
+    if (grid && grid.length) {
+      m = grid.length;
+      n = grid[0].length;
+    } else {
       grid = window.advEditor1.grid;
     }
-    m = grid.length;
-    n = grid[0].length;
   }
   window.advEditor1 = new nonogram.Editor(
     m, n,
