@@ -5,8 +5,6 @@ cache:
     - "node_modules"
 
 script:
-- echo "${GITHUB_TOKEN:0:20}"
-- echo "${GITHUB_TOKEN:20:40}"
 - npm build
 - mv docs/* .
 
