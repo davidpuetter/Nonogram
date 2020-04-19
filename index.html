@@ -357,7 +357,11 @@ function f(grid) {
 document.getElementById('m').addEventListener('change', f)
 document.getElementById('n').addEventListener('change', f)
 document.getElementById('threshold').addEventListener('change', f)
-document.getElementById('load-from-file').addEventListener('change', () => gridFromImgFile(f))
+document.getElementById('load-from-file').addEventListener('change', () => gridFromImgFile((grid) => {
+  document.getElementById('m').value = grid.length;
+  document.getElementById('n').value = grid[0].length;
+  f(grid);
+}))
 f()</pre>
 
   <h3 id="nonogram-solver">Interactive Nonogram Solver</h3>
