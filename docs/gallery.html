@@ -85,7 +85,7 @@
 
   <script>
   const gallery = document.getElementById('gallery');
-  fetch('grids-files.json').then(resp => resp.json()).then(filenames => loadImagesRecursive([filenames[12]]));
+  fetch('grids-files.json').then(resp => resp.json()).then(filenames => loadImagesRecursive(filenames));
   function loadImagesRecursive(filenames) {
     const filename = filenames.pop();
     if (!filename) return;
@@ -95,7 +95,7 @@
     div.classList.add('thumbnail', 'nonogram');
     div.innerHTML = `
       <img src="${filepath}">
-      <div class="caption"><h3></h3><p></p></div>`;
+      <div class="caption"><h3>⌛ Estimating difficulty...</h3><p></p></div>`;
     const doneTime = getCookie(filename);
     if (doneTime) {
       div.getElementsByTagName('p')[0].textContent = `Done in ${Math.round(doneTime / 1000)}s`;
