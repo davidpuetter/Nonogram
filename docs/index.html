@@ -150,7 +150,8 @@ new nonogram.Solver(
   [[1,1], [1,1]],
   [[2], [], [2], []],
   'solve1',
-  { delay: 200 }).solve()</pre>
+  { delay: 200, onError: (error) => console.error(error) }
+).solve()</pre>
     </div>
     <div class="col-md-4">
       <canvas id="solve1"></canvas>
@@ -211,12 +212,12 @@ window._column = [
     </div>
     <div class="col-md-2">
       <pre>
-new
-  nonogram.Solver(
-    window._row,
-    window._column,
-    'solve2')
-  .solve()</pre>
+new nonogram.Solver(
+  window._row,
+  window._column,
+  'solve2',
+  { onError: (error) => console.error(error) }
+).solve()</pre>
     </div>
     <div class="col-md-4">
       <canvas id="solve2"></canvas>
@@ -281,7 +282,7 @@ function f(grid) {
       grid: grid,
       onHintChange(row, column) {
         new nonogram.Game(row, column, 'adv-play1', { theme: { boldMeshGap: 0 } })
-        new nonogram.Solver(row, column, 'adv-solve1').solve()
+        new nonogram.Solver(row, column, 'adv-solve1', { onError: (error) => console.error(error) }).solve()
       } })
   document.getElementById('pattern-download-link').onclick = function () { this.href = gridToBase64Img(window.advEditor1.grid); };
   document.getElementById('hints-grid-download-link').onclick = function () { this.href = document.getElementById('adv-play1').toDataURL(); };
@@ -395,6 +396,7 @@ document.getElementById('btn-solve2').addEventListener('click', () => {
         isBoldMeshOnly: true,
         isMeshOnTop: true },
       delay: +document.getElementById('delay').value,
+      onError: (error) => console.error(error),
       onSuccess(time) {
         document.getElementById('timecost').innerHTML =
         '<span>Solved in ' + time + 'ms.</span>'
