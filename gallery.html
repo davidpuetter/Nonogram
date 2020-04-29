@@ -85,18 +85,17 @@
 
   <script>
   const gallery = document.getElementById('gallery');
-  fetch('grids-files.json').then(resp => resp.json()).then(filenames => loadImagesRecursive(filenames));
-  function loadImagesRecursive(filenames) {
-    const filename = filenames.pop();
-    if (!filename) return;
-    if (filename.endsWith('.jpg')) { return loadImagesRecursive(filenames); }
-    const filepath = '../grids/' + filename;
+  fetch('grids-files.json').then(resp => resp.json()).then(filepaths => loadImagesRecursive(filepaths));
+  function loadImagesRecursive(filepaths) {
+    const filepath = filepaths.pop();
+    if (!filepath) return;
+    if (filepath.endsWith('.jpg')) { return loadImagesRecursive(filepaths); }
     const div = document.createElement('div');
     div.classList.add('thumbnail', 'nonogram');
     div.innerHTML = `
       <img src="${filepath}">
       <div class="caption"><h3>⌛ Estimating difficulty...</h3><p></p></div>`;
-    const doneTime = getCookie(filename);
+    const doneTime = getCookie(filepath);
     if (doneTime) {
       div.getElementsByTagName('p')[0].textContent = `Done in ${Math.round(doneTime / 1000)}s`;
     } else {
@@ -111,21 +110,21 @@
       const row = editor.hints.row, column = editor.hints.column;
       new nonogram.Solver(row, column, 'hidden-canvas', { delay:0, onSuccess(time) {
         const difficulty = Math.round(time / 100 + (row.length + column.length) / 2);
-        console.log(filename, difficulty, time, row.length, column.length);
+        console.log(filepath, difficulty, time, row.length, column.length);
         const h3 = div.getElementsByTagName('h3')[0];
         h3.textContent = `Difficulty : ${difficulty}`;
         img.classList.add('miniature'); // We add this class late to avoid altering the img height / width
         div.onclick = () => {
           toggleOverlay();
           new nonogram.Game(row, column, 'game', { onSuccess(time) {
-            setCookie(filename, time);
+            setCookie(filepath, time);
             div.getElementsByTagName('p')[0].textContent = `Done in ${Math.round(time / 1000)}s`;
             div.classList.remove('unsolved');
             animateCSS(div, 'flip');
             toggleOverlay();
           } });
         };
-        loadImagesRecursive(filenames);
+        loadImagesRecursive(filepaths);
       } }).solve();
     })
     if (img.complete) {
