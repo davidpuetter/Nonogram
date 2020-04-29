@@ -89,11 +89,12 @@
 
   <script>
   const gallery = document.getElementById('gallery');
-  fetch('grids-files.json').then(resp => resp.json()).then(filepaths => loadImagesRecursive(filepaths));
-  function loadImagesRecursive(filepaths) {
+  fetch('grids-files.json').then(resp => resp.json()).then(filepaths => loadImagesRecursive(filepaths, estimateDifficultyRecursive));
+  function loadImagesRecursive(filepaths, callback, nonograms) {
+    if (!nonograms) nonograms = [];
     const filepath = filepaths.pop();
-    if (!filepath) return;
-    if (filepath.endsWith('.jpg')) { return loadImagesRecursive(filepaths); }
+    if (!filepath) return callback(nonograms);
+    if (filepath.endsWith('.jpg')) { return loadImagesRecursive(filepaths, callback, nonograms); }
     const div = document.createElement('div');
     div.classList.add('thumbnail', 'nonogram');
     div.innerHTML = `
@@ -108,36 +109,42 @@
     gallery.appendChild(div);
     const img = div.getElementsByTagName('img')[0];
     img.onload = () => gridFromImage(img, (grid) => {
+      img.classList.add('miniature'); // We add this class late to avoid altering the img height / width
       const m = grid.length,
             n = grid[0].length,
             editor = new nonogram.Editor(m, n, 'hidden-canvas', { grid: grid });
       const row = editor.hints.row, column = editor.hints.column;
-      new nonogram.Solver(row, column, 'hidden-canvas', {
-        delay:0,
-        onError: (error) => console.error(error),
-        onSuccess(time, iterations) {
-          const difficulty = Math.floor(iterations / 10 + (row.length + column.length) / 2);
-          console.log(filepath, `difficulty=${difficulty} time=${time} iterations=${iterations} row.length=${row.length} column.length=${column.length}`);
-          const h3 = div.getElementsByTagName('h3')[0];
-          h3.textContent = `Difficulty : ${difficulty}`;
-          img.classList.add('miniature'); // We add this class late to avoid altering the img height / width
-          div.onclick = () => {
-            toggleOverlay();
-            new nonogram.Game(row, column, 'game', { onSuccess(time) {
-              setCookie(filepath, time);
-              div.getElementsByTagName('p')[0].textContent = `Done in ${Math.round(time / 1000)}s`;
-              div.classList.remove('unsolved');
-              animateCSS(div, 'flip');
-              toggleOverlay();
-            } });
-          };
-          loadImagesRecursive(filepaths);
-        }
-      }).solve();
+      nonograms.push([div, row, column]);
+      div.onclick = () => {
+        toggleOverlay();
+        new nonogram.Game(row, column, 'game', { onSuccess(time) {
+          setCookie(filepath, time);
+          div.getElementsByTagName('p')[0].textContent = `Done in ${Math.round(time / 1000)}s`;
+          div.classList.remove('unsolved');
+          animateCSS(div, 'flip');
+          toggleOverlay();
+        } });
+      };
+      loadImagesRecursive(filepaths, callback, nonograms);
     })
     if (img.complete) {
       img.onload();
     }
+  }
+  function estimateDifficultyRecursive(nonograms) {
+    const next = nonograms.shift();
+    if (!next) return;
+    const [nonoDiv, row, column] = next;
+    new nonogram.Solver(row, column, 'hidden-canvas', {
+      delay:0,
+      onError: (error) => console.error(error),
+      onSuccess(time, iterations) {
+        const difficulty = Math.floor(iterations / 10 + (row.length + column.length) / 2);
+        console.log(nonoDiv.getElementsByTagName('img')[0].src, `difficulty=${difficulty} time=${time} iterations=${iterations} row.length=${row.length} column.length=${column.length}`);
+        nonoDiv.getElementsByTagName('h3')[0].textContent = `Difficulty : ${difficulty}`;
+        estimateDifficultyRecursive(nonograms);
+      }
+    }).solve()
   }
   function toggleOverlay() {
     const helpOverlay = document.getElementById('overlay');
