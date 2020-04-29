@@ -45,6 +45,7 @@ class Solver {
     this.hints = data.hints
     this.delay = data.delay
     this.grid = data.grid
+    this.iterations = 0
 
     this.scanner = {
       direction: 'row',
@@ -94,6 +95,7 @@ class Solver {
   }
 
   scan = () => {
+    this.iterations += 1
     if (!this.updateScanner()) return
 
     if (this.delay) {
@@ -156,6 +158,7 @@ class Solver {
           type: 'finish',
           grid: this.grid,
           hints: this.hints,
+          iterations: this.iterations,
         }
         postMessage(this.message)
         return false

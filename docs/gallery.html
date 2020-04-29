@@ -112,9 +112,9 @@
             n = grid[0].length,
             editor = new nonogram.Editor(m, n, 'hidden-canvas', { grid: grid });
       const row = editor.hints.row, column = editor.hints.column;
-      new nonogram.Solver(row, column, 'hidden-canvas', { delay:0, onSuccess(time) {
-        const difficulty = Math.round(time / 100 + (row.length + column.length) / 2);
-        console.log(filepath, difficulty, time, row.length, column.length);
+      new nonogram.Solver(row, column, 'hidden-canvas', { delay:0, onSuccess(time, iterations) {
+        const difficulty = Math.floor(iterations / 10 + (row.length + column.length) / 2);
+        console.log(filepath, `difficulty=${difficulty} time=${time} iterations=${iterations} row.length=${row.length} column.length=${column.length}`);
         const h3 = div.getElementsByTagName('h3')[0];
         h3.textContent = `Difficulty : ${difficulty}`;
         img.classList.add('miniature'); // We add this class late to avoid altering the img height / width

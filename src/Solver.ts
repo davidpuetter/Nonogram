@@ -123,7 +123,7 @@ export default class Solver extends Nonogram {
           ))
         } else if (data.type === 'finish') {
           this.isError = false
-          this.handleSuccess(Date.now() - this.startTime)
+          this.handleSuccess(Date.now() - this.startTime, data.iterations)
         }
       }
       this.print()
