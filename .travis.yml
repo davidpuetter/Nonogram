@@ -6,6 +6,7 @@ cache:
 
 script:
 - npm build
+- npm run gen-grids-list
 - mv docs/* .
 
 deploy:
