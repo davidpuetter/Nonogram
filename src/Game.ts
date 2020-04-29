@@ -55,6 +55,7 @@ export default class Game extends Nonogram {
 
     this.brush = Status.FILLED
     this.draw = {}
+    this.startTime = Date.now()
     this.print()
   }
 
@@ -229,7 +230,7 @@ export default class Game extends Nonogram {
   }
 
   succeed() {
-    this.handleSuccess()
+    this.handleSuccess(Date.now() - this.startTime)
     this.listeners.forEach(([type, listener]) => {
       this.canvas.removeEventListener(type, listener)
     })

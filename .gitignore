@@ -4,4 +4,5 @@
 .DS_Store
 .vscode
 
+/docs/grids-files.json
 /docs/nonogram.js

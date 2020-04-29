@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Nonogram Gallery</title>
+  <link rel="stylesheet" href="https://bootswatch.com/3/journal/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+  <script src="nonogram.js"></script>
+  <script src="demo-utils.js"></script>
+  <style>
+  body { padding-top: 70px; }
+  #gallery {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+  }
+  .nonogram {
+    width: 20rem;
+    margin: 1rem;
+    cursor: pointer;
+    animation-duration: 3s;
+  }
+  .miniature {
+    width: 100%;
+    image-rendering: crisp-edges;
+  }
+  .unsolved.nonogram > img { display: none; }
+  .unsolved.nonogram::before {
+    content: '?';
+    display: block;
+    font-size: 10rem;
+    text-align: center;
+  }
+  #hidden-canvas { visibility: hidden; }
+  #overlay {
+    position: fixed; left: 0; top: 70px;
+    width: 100%; height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 30rem;
+  }
+  #overlay-close {
+    float: right;
+    border: 1px solid black;
+    padding: .5rem;
+    width: 4rem;
+    height: 4rem;
+    text-align: center;
+    font-family: Arial;
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 3rem;
+    cursor: pointer;
+  }
+  canvas { height: 100%; }
+  </style>
+</head>
+
+<body class="container">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">nonogram.Gallery</a>
+      </div>
+
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="index.html">NONOGRAM.DEMO</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="https://github.com/Lucas-C/Nonogram">View on GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div id="gallery" class="container"></div>
+  <canvas id="hidden-canvas"></canvas>
+  <div id="overlay" style="display: none">
+    <div class="container">
+      <div id="overlay-close" onclick="toggleOverlay()">X</div>
+      <canvas id="game"></canvas>
+    </div>
+  </div>
+
+  <script>
+  const gallery = document.getElementById('gallery');
+  fetch('grids-files.json').then(resp => resp.json()).then(filenames => loadImagesRecursive([filenames[12]]));
+  function loadImagesRecursive(filenames) {
+    const filename = filenames.pop();
+    if (!filename) return;
+    if (filename.endsWith('.jpg')) { return loadImagesRecursive(filenames); }
+    const filepath = '../grids/' + filename;
+    const div = document.createElement('div');
+    div.classList.add('thumbnail', 'nonogram');
+    div.innerHTML = `
+      <img src="${filepath}">
+      <div class="caption"><h3></h3><p></p></div>`;
+    const doneTime = getCookie(filename);
+    if (doneTime) {
+      div.getElementsByTagName('p')[0].textContent = `Done in ${Math.round(doneTime / 1000)}s`;
+    } else {
+      div.classList.add('unsolved');
+    }
+    gallery.appendChild(div);
+    const img = div.getElementsByTagName('img')[0];
+    img.onload = () => gridFromImage(img, (grid) => {
+      const m = grid.length,
+            n = grid[0].length,
+            editor = new nonogram.Editor(m, n, 'hidden-canvas', { grid: grid });
+      const row = editor.hints.row, column = editor.hints.column;
+      new nonogram.Solver(row, column, 'hidden-canvas', { delay:0, onSuccess(time) {
+        const difficulty = Math.round(time / 100 + (row.length + column.length) / 2);
+        console.log(filename, difficulty, time, row.length, column.length);
+        const h3 = div.getElementsByTagName('h3')[0];
+        h3.textContent = `Difficulty : ${difficulty}`;
+        img.classList.add('miniature'); // We add this class late to avoid altering the img height / width
+        div.onclick = () => {
+          toggleOverlay();
+          new nonogram.Game(row, column, 'game', { onSuccess(time) {
+            setCookie(filename, time);
+            div.getElementsByTagName('p')[0].textContent = `Done in ${Math.round(time / 1000)}s`;
+            div.classList.remove('unsolved');
+            animateCSS(div, 'flip');
+            toggleOverlay();
+          } });
+        };
+        loadImagesRecursive(filenames);
+      } }).solve();
+    })
+    if (img.complete) {
+      img.onload();
+    }
+  }
+  function toggleOverlay() {
+    const helpOverlay = document.getElementById('overlay');
+    if (helpOverlay.style.display === 'none') {
+      helpOverlay.style.display = 'flex';
+      animateCSS(helpOverlay, 'slideInDown');
+    } else {
+      animateCSS(helpOverlay, 'slideOutUp', () => { helpOverlay.style.display = 'none'; });
+    }
+  };
+  function animateCSS(node, animationName, callback) {
+    node.classList.add('animated', animationName);
+    function handleAnimationEnd() {
+      node.classList.remove('animated', animationName);
+      node.removeEventListener('animationend', handleAnimationEnd);
+      if (typeof callback === 'function') callback();
+    }
+    node.addEventListener('animationend', handleAnimationEnd);
+  }
+  function getCookie(key) {
+    const matchingCookie = document.cookie.split(';').map(c => c.trim()).find(cookieStr => cookieStr.startsWith(key + '='));
+    return matchingCookie && matchingCookie.split('=', 2)[1];
+  }
+  function setCookie(key, value) {
+    document.cookie = key + '=' + value;
+  }
+  // To reveal all:
+  // $$('.nonogram').forEach(n => n.classList.remove('unsolved'))
+  </script>
+</body>
+</html>
