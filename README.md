@@ -13,3 +13,4 @@ and [a gallery](https://Lucas-C.github.io/Nonogram/gallery.html).
 For some grids samples, check:
 - the [grids/](grids/) directory of this repo
 - [Patrick Labatut gallery](http://www.normalesup.org/~labatut/IK3/)
+- [nonograms.ru](https://www.nonograms.ru/nonograms/size/small)
