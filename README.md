@@ -6,7 +6,8 @@
 
 This is a fork of the original awesome nonogram (also known as hanjie, picross and griddlers) editor and solver by HandsomeOne.
 
-I only added 3 buttons to load a grid from an image file / save it as PNG / export hints,
+I only slightly improved the solver algorithm for big grids,
+added 3 buttons onto the demo page to load a grid from an image file / save it as PNG / export hints,
 and [a gallery](https://Lucas-C.github.io/Nonogram/gallery.html).
 
 For some grids samples, check:

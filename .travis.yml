@@ -5,7 +5,7 @@ cache:
     - "node_modules"
 
 script:
-- npm build
+- npm run build
 - node generate_grids_list.js grids/
 - mv docs/* .
 
