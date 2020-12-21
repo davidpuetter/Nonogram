@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Lucas-C/Nonogram.svg?branch=master)](https://travis-ci.org/Lucas-C/Nonogram)
+[![Build Status](https://travis-ci.com/Lucas-C/Nonogram.svg?branch=master)](https://travis-ci.com/Lucas-C/Nonogram)
 
 # Nonogram
 
