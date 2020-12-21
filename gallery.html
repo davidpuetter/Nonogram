@@ -64,7 +64,7 @@
   <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
       <div class="navbar-header">
-        <a class="navbar-brand" href="#">nonogram.Gallery</a>
+        <a class="navbar-brand" href="gallery.html">nonogram.Gallery</a>
       </div>
 
       <div class="collapse navbar-collapse">
@@ -88,8 +88,15 @@
   </div>
 
   <script>
+  const targetGridId = location.search && location.search.substring(1) && Number(location.search.substring(1));
   const gallery = document.getElementById('gallery');
-  fetch('grids-files.json').then(resp => resp.json()).then(filepaths => loadImagesRecursive(filepaths, estimateDifficultyRecursive));
+  fetch('grids-files.json').then(resp => resp.json()).then(filepaths => {
+    if (targetGridId) filepaths = [filepaths[targetGridId - 1]];
+    loadImagesRecursive(filepaths, nonograms => {
+      estimateDifficultyRecursive(nonograms);
+      if (targetGridId) document.getElementsByClassName('nonogram')[0].click();
+    });
+  });
   function loadImagesRecursive(filepaths, callback, nonograms, i = 0) {
     if (!nonograms) nonograms = [];
     const filepath = filepaths[i];
@@ -98,7 +105,7 @@
     div.classList.add('thumbnail', 'nonogram');
     div.innerHTML = `
       <img src="${filepath}">
-      <div class="caption"><h3>${i + 1}</h3><p>⌛ Estimating difficulty...</p></div>`;
+      <div class="caption"><h3>${targetGridId || (i + 1)}</h3><p>⌛ Estimating difficulty...</p></div>`;
     const doneTime = getCookie(`DONE_${filepath}`);
     if (!doneTime) {
       div.classList.add('unsolved');
