@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/HandsomeOne/Nonogram.git"
+    "url": "https://github.com/Lucas-/Nonogram.git"
   },
   "keywords": [
     "nonogram",
@@ -19,11 +19,11 @@
   "author": "Zhou Qi <i@handsomeone.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/HandsomeOne/Nonogram/issues"
+    "url": "https://github.com/Lucas-C/Nonogram/issues"
   },
-  "homepage": "https://github.com/HandsomeOne/Nonogram",
+  "homepage": "https://github.com/Lucas-C/Nonogram",
   "devDependencies": {
-    "babel-minify": "^0.2.0",
+    "babel-minify": "^0.5.1",
     "rollup": "^0.50.0",
     "rollup-plugin-bundle-worker": "^0.1.0",
     "rollup-plugin-typescript": "^0.8.1",
