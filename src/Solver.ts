@@ -123,7 +123,8 @@ export default class Solver extends Nonogram {
           ))
         } else if (data.type === 'finish') {
           this.isError = false
-          this.handleSuccess(Date.now() - this.startTime, data.iterations)
+          const solved = this.grid.every(line => line.every(cell => cell !== Status.UNSET))
+          this.handleSuccess(Date.now() - this.startTime, data.iterations, solved)
         }
       }
       this.print()

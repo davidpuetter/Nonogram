@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="https://bootswatch.com/3/journal/bootstrap.min.css">
   <script src="nonogram.min.js"></script>
   <script src="demo-utils.js"></script>
+  <script src="qrcode-bundle-1.5.0.js"></script>
   <script>
     function gridFromImgFile(callback) {
       var inputFileList = document.getElementById('load-from-file').files;
@@ -158,6 +159,7 @@ new nonogram.Solver(
     </div>
   </div>
   <div class="row">
+    <p>The following nonogram produces a valid QRCode that, once decoded, reveals the text: <code>You are the BEST!</code></p>
     <div class="col-md-3">
       <pre>
 window._row = [
@@ -284,9 +286,9 @@ function f(grid) {
         new nonogram.Game(row, column, 'adv-play1', { theme: { boldMeshGap: 0 } })
         new nonogram.Solver(row, column, 'adv-solve1', { onError: (error) => console.error(error) }).solve()
       } })
-  document.getElementById('pattern-download-link').onclick = function () { this.href = gridToBase64Img(window.advEditor1.grid); };
-  document.getElementById('hints-grid-download-link').onclick = function () { this.href = document.getElementById('adv-play1').toDataURL(); };
-  document.getElementById('hints-as-json-link').onclick = function () { this.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(window.advEditor1.hints)); };
+  document.getElementById('pattern-download-link').onclick = function () { this.href = gridToBase64Img(window.advEditor1.grid) }
+  document.getElementById('hints-grid-download-link').onclick = function () { this.href = document.getElementById('adv-play1').toDataURL() }
+  document.getElementById('hints-as-json-link').onclick = function () { this.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(window.advEditor1.hints)) }
 }
 document.getElementById('m').addEventListener('change', f)
 document.getElementById('n').addEventListener('change', f)
@@ -294,7 +296,7 @@ document.getElementById('threshold').addEventListener('change', f)
 document.getElementById('load-from-file').addEventListener('change', () => gridFromImgFile((grid) => {
   document.getElementById('m').value = grid.length;
   document.getElementById('n').value = grid[0].length;
-  f(grid);
+  f(grid)
 }))
 f()</pre>
 
@@ -402,6 +404,68 @@ document.getElementById('btn-solve2').addEventListener('click', () => {
         '<span>Solved in ' + time + 'ms.</span>'
       } }).solve()
 })</pre>
+
+  <h3 id="qrcode-nonogram">Craft nonograms that reveal QRCodes</h3>
+  <p>The <a href="https://www.npmjs.com/package/qrcode">qrcode</a> lib is used in this example to try to build a solvable grid
+     in the form of a valid QRCode that, once decoded, reveals some text:</p>
+  <div class="form-group">
+    <label for="text">Text to hide:</label>
+    <input id="text" class="form-control" value="You are the BEST!" oninput="rebuildQRCodeSolver()">
+  </div>
+  <div class="row">
+    <div class="col-md-8">
+      <pre class="brush:js">
+function rebuildQRCodeSolver() {
+  var text = document.getElementById('text').value;
+  var qrcode = QRCode.create(text, { errorCorrectionLevel: 'L' });
+  // Now building an Editor instance to generate the hints:
+  var size = qrcode.modules.size;
+  var data = [].slice.call(qrcode.modules.data);
+  var grid = [];
+  while(data.length) {
+    grid.push(data.splice(0, size));
+  }
+  var editor = new nonogram.Editor(size, size, 'hidden-editor', { grid: grid});
+  // Now checking that a unique solution exists:
+  var downloadPatternLink = document.getElementById('qrcode-pattern-download-link');
+  var downloadJsonLink = document.getElementById('qrcode-hints-as-json-link');
+  var downloadGridLink = document.getElementById('qrcode-hints-grid-download-link');
+  var solver = new nonogram.Solver(
+    editor.hints.row,
+    editor.hints.column,
+    'edit-qrcode',
+    {
+      onSuccess(duration, iterations, solved) {
+        downloadPatternLink.style.display = solved ? 'block' : 'none';
+        downloadJsonLink.style.display = solved ? 'block' : 'none';
+        downloadGridLink.style.display = solved ? 'block' : 'none';
+        if (solved) {
+          downloadPatternLink.onclick = function () { this.href = gridToBase64Img(grid) }
+          downloadJsonLink.onclick = function () { this.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(editor.hints)) }
+          class NoControllerGame extends nonogram.Game {
+            printController() {}
+          }
+          new NoControllerGame(editor.hints.row, editor.hints.column, 'hidden-game', { theme: { boldMeshGap: 0 } })
+          downloadGridLink.onclick = function () { this.href = document.getElementById('hidden-game').toDataURL() }
+        }
+      },
+    }
+  );
+  solver.solve()
+}
+window.rebuildQRCodeSolver = rebuildQRCodeSolver
+rebuildQRCodeSolver()</pre>
+    </div>
+    <div class="col-md-4">
+      <canvas id="hidden-editor" style="position: absolute; left: -9000px"></canvas>
+      <canvas id="hidden-game" style="position: absolute; left: -9000px"></canvas>
+      <canvas id="edit-qrcode"></canvas>
+      <a id="qrcode-pattern-download-link" class="btn btn-success" style="display: none" download="nonogram-pattern.png">Save nonogram pattern as image</a>
+      <a id="qrcode-hints-grid-download-link" class="btn btn-info" style="display: none" download="nonogram-hints-grid.png">Save nonogram grid &amp; hints as image</a>
+      <a id="qrcode-hints-as-json-link" class="btn btn-danger" style="display: none" download="nonogram-hints.json">Save nonogram hints as JSON</a>
+    </div>
+  </div>
+  </script>
 </body>
 
 </html>
