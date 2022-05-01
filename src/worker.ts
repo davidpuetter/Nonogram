@@ -28,12 +28,13 @@ class Solver {
     row: LineOfHints[]
     column: LineOfHints[]
   }
-  isError: Boolean
+  isError: Boolean = false
   scanner: Scanner
-  currentHints: LineOfHints
-  currentLine: status[]
+  currentHints: LineOfHints = []
+  currentLine: status[] = []
   delay: number
-  message: SolverMessage
+  iterations: number = 0
+  message?: SolverMessage
   possibleBlanks: {
     row: number[][][]
     column: number[][][]
@@ -43,8 +44,6 @@ class Solver {
     this.hints = data.hints
     this.delay = data.delay
     this.grid = data.grid
-    this.iterations = 0
-
     this.scanner = {
       direction: 'row',
       i: -1,
@@ -55,26 +54,25 @@ class Solver {
     }
     this.scan()
   }
-
-  getSingleLine(direction: Direction, i: number): status[] {
+  static getSingleLine(grid : status[][], direction: Direction, i: number): status[] {
+    const m = grid.length;
+    const n = grid.length ? grid[0].length : 0;
     const g: number[] = []
-    const m = this.grid.length
-    const n = this.grid.length && this.grid[0].length
     if (direction === 'row') {
       for (let j = 0; j < n; j += 1) {
-        g[j] = this.grid[i][j]
+        g[j] = grid[i][j]
       }
     } else if (direction === 'column') {
       for (let j = 0; j < m; j += 1) {
-        g[j] = this.grid[j][i]
+        g[j] = grid[j][i]
       }
     }
     return g
   }
-  calculateHints(direction: Direction, i: number) {
+  static calculateHints(grid : status[][], direction: Direction, i: number) {
     const hints: number[] = []
-    const line = this.getSingleLine(direction, i)
-    line.reduce((lastIsFilled, cell) => {
+    const line = Solver.getSingleLine(grid, direction, i)
+    line.reduce((lastIsFilled : boolean, cell : status) => {
       if (cell === WorkerStatus.FILLED) {
         hints.push(lastIsFilled ? <number>hints.pop() + 1 : 1)
       } else if (cell !== WorkerStatus.EMPTY) {
@@ -86,7 +84,7 @@ class Solver {
   }
   isLineCorrect(direction: Direction, i: number) {
     try {
-      return eekwall(this.calculateHints(direction, i), this.hints[direction][i])
+      return eekwall(Solver.calculateHints(this.grid, direction, i), this.hints[direction][i])
     } catch (e) {
       return false
     }
@@ -111,7 +109,7 @@ class Solver {
     this.currentHints = this.hints[direction][i]
     this.currentHints.unchanged = true
 
-    this.currentLine = this.getSingleLine(direction, i)
+    this.currentLine = Solver.getSingleLine(this.grid, direction, i)
     const finished = this.currentLine.every(cell => cell !== WorkerStatus.UNSET)
     if (!finished) {
       this.solveSingleLine()

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "noImplicitAny": true,
-    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "strict": true,
     "target": "es6"
   }
 }

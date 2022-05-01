@@ -3,10 +3,10 @@ import $ from './colors'
 import Status from './status'
 
 export default class Game extends Nonogram {
-  handleSuccess: () => void
+  handleSuccess: (time: number) => void
   handleAnimationEnd: () => void
 
-  brush: Status
+  brush: Status = Status.FILLED
   draw: {
     firstI?: number
     firstJ?: number
@@ -15,8 +15,9 @@ export default class Game extends Nonogram {
     inverted?: boolean
     mode?: 'empty' | 'filling'
     direction?: Direction
-  }
-  isPressed: boolean
+  } = {}
+  isPressed: boolean = false
+  startTime: number
 
   constructor(
     row: number[][],
@@ -53,27 +54,14 @@ export default class Game extends Nonogram {
 
     this.initCanvas(canvas)
 
-    this.brush = Status.FILLED
-    this.draw = {}
     this.startTime = Date.now()
     this.print()
   }
 
-  calculateHints(direction: Direction, i: number) {
-    const hints: number[] = []
-    const line = this.getSingleLine(direction, i)
-    line.reduce((lastIsFilled, cell) => {
-      if (cell === Status.FILLED) {
-        hints.push(lastIsFilled ? <number>hints.pop() + 1 : 1)
-      }
-      return cell === Status.FILLED
-    }, false)
-    return hints
-  }
   initListeners() {
     this.listeners = [
-      ['mousedown', this.mousedown],
-      ['mousemove', this.mousemove],
+      ['mousedown', <EventListener>this.mousedown],
+      ['mousemove', <EventListener>this.mousemove],
       ['mouseup', this.brushUp],
       ['mouseleave', this.brushUp],
     ]
@@ -136,7 +124,7 @@ export default class Game extends Nonogram {
     this.printController()
   }
   brushUp = () => {
-    delete this.isPressed
+    this.isPressed = false
     this.draw = {}
   }
   switchCell(i: number, j: number) {
@@ -189,7 +177,7 @@ export default class Game extends Nonogram {
     const borderWidth = controllerSize / 20
     const innerSize = outerSize - 2 * borderWidth
 
-    function printFillingBrush() {
+    const printFillingBrush = () => {
       ctx.save()
       ctx.translate(offset, 0)
       ctx.fillStyle = this.theme.meshColor
@@ -199,7 +187,7 @@ export default class Game extends Nonogram {
       ctx.restore()
     }
 
-    function printEmptyBrush() {
+    const printEmptyBrush = () => {
       ctx.save()
       ctx.translate(0, offset)
       ctx.fillStyle = this.theme.meshColor
@@ -220,11 +208,11 @@ export default class Game extends Nonogram {
     ctx.save()
     ctx.translate(w * 0.7, h * 0.7)
     if (this.brush === Status.FILLED) {
-      printEmptyBrush.call(this)
-      printFillingBrush.call(this)
+      printEmptyBrush()
+      printFillingBrush()
     } else if (this.brush === Status.EMPTY) {
-      printFillingBrush.call(this)
-      printEmptyBrush.call(this)
+      printFillingBrush()
+      printEmptyBrush()
     }
     ctx.restore()
   }

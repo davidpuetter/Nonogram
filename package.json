@@ -5,7 +5,7 @@
   "main": "docs/nonogram.min.js",
   "scripts": {
     "start": "rollup -cw",
-    "build": "rollup -c && minify docs/nonogram.js --outFile docs/nonogram.min.js",
+    "build": "tsc && rollup -c && minify docs/nonogram.js --outFile docs/nonogram.min.js",
     "gen-grids-list": "node generate_grids_list.js ../grids/"
   },
   "repository": {

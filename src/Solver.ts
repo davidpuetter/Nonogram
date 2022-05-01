@@ -8,15 +8,14 @@ export default class Solver extends Nonogram {
   worker: Worker = new SolverWorker()
 
   delay: number
-  handleSuccess: (time: number) => void
+  handleSuccess: (time: number, iterations: number, solved: boolean) => void
   handleError: (e: Error) => void
-  isBusy: boolean
-  isError: boolean
+  isBusy: boolean = false
+  isError: boolean = false
   scanner?: {
     direction: Direction
     i: number
   }
-  startTime: number
 
   constructor(
     row: number[][],
@@ -57,7 +56,7 @@ export default class Solver extends Nonogram {
 
   initListeners() {
     this.listeners = [
-      ['click', this.click],
+      ['click', <EventListener>this.click],
     ]
   }
   click = (e: MouseEvent) => {
@@ -103,7 +102,7 @@ export default class Solver extends Nonogram {
 
     this.print()
     this.isBusy = true
-    this.startTime = Date.now()
+    const startTime = Date.now()
     this.worker.onmessage = ({ data }: {data: SolverMessage}) => {
       if (this.canvas.nonogram !== this) {
         this.worker.terminate()
@@ -124,7 +123,7 @@ export default class Solver extends Nonogram {
         } else if (data.type === 'finish') {
           this.isError = false
           const solved = this.grid.every(line => line.every(cell => cell !== Status.UNSET))
-          this.handleSuccess(Date.now() - this.startTime, data.iterations, solved)
+          this.handleSuccess(Date.now() - startTime, data.iterations!, solved)
         }
       }
       this.print()

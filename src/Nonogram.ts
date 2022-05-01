@@ -12,16 +12,16 @@ function eekwall(arr1: any[], arr2: any[]) {
 
 abstract class Nonogram {
   theme: Theme
-  canvas: NonogramCanvas
-  ctx: CanvasRenderingContext2D
-  listeners: [string, EventListener][]
-  m: number
-  n: number
-  grid: Status[][]
+  listeners: [string, EventListener][] = []
+  m: number = 0
+  n: number = 0
+  grid: Status[][] = []
   hints: {
     row: LineOfHints[]
     column: LineOfHints[]
-  }
+  } = { row: [], column: [] }
+  _canvas?: NonogramCanvas
+  _ctx?: CanvasRenderingContext2D
 
   constructor() {
     this.theme = {
@@ -37,12 +37,15 @@ abstract class Nonogram {
     }
   }
 
+  get canvas() { return this._canvas! }
+  get ctx() { return this._ctx! }
+
   initCanvas(canvas: string | HTMLCanvasElement) {
     let _canvas = canvas instanceof HTMLCanvasElement ? canvas : document.getElementById(canvas)
     if (!(_canvas instanceof HTMLCanvasElement)) {
       _canvas = document.createElement('canvas')
     }
-    this.canvas = <NonogramCanvas>_canvas
+    this._canvas = <NonogramCanvas>_canvas
     if (this.canvas.nonogram) {
       this.canvas.nonogram.listeners.forEach(([type, listener]) => {
         this.canvas.removeEventListener(type, listener)
@@ -52,7 +55,7 @@ abstract class Nonogram {
     this.canvas.width = this.theme.width || this.canvas.clientWidth
     this.canvas.height = this.canvas.width * (this.m + 1) / (this.n + 1)
 
-    this.ctx = this.canvas.getContext('2d') || new CanvasRenderingContext2D()
+    this._ctx = this.canvas.getContext('2d') || new CanvasRenderingContext2D()
 
     this.initListeners()
     this.listeners.forEach(([type, listener]) => {
@@ -70,23 +73,25 @@ abstract class Nonogram {
     this.hints.row.forEach(removeNonPositiveElement)
     this.hints.column.forEach(removeNonPositiveElement)
   }
-  getSingleLine(direction: Direction, i: number): Status[] {
+  static getSingleLine(grid : Status[][], direction: Direction, i: number): Status[] {
+    const m = grid.length;
+    const n = grid.length ? grid[0].length : 0;
     const g: number[] = []
     if (direction === 'row') {
-      for (let j = 0; j < this.n; j += 1) {
-        g[j] = this.grid[i][j]
+      for (let j = 0; j < n; j += 1) {
+        g[j] = grid[i][j]
       }
     } else if (direction === 'column') {
-      for (let j = 0; j < this.m; j += 1) {
-        g[j] = this.grid[j][i]
+      for (let j = 0; j < m; j += 1) {
+        g[j] = grid[j][i]
       }
     }
     return g
   }
-  calculateHints(direction: Direction, i: number) {
+  static calculateHints(grid : Status[][], direction: Direction, i: number) {
     const hints: number[] = []
-    const line = this.getSingleLine(direction, i)
-    line.reduce((lastIsFilled, cell) => {
+    const line = Nonogram.getSingleLine(grid, direction, i)
+    line.reduce((lastIsFilled : boolean, cell : Status) => {
       if (cell === Status.FILLED) {
         hints.push(lastIsFilled ? <number>hints.pop() + 1 : 1)
       } else if (cell !== Status.EMPTY) {
@@ -98,7 +103,7 @@ abstract class Nonogram {
   }
   isLineCorrect(direction: Direction, i: number) {
     try {
-      return eekwall(this.calculateHints(direction, i), this.hints[direction][i])
+      return eekwall(Nonogram.calculateHints(this.grid, direction, i), this.hints[direction][i])
     } catch (e) {
       return false
     }

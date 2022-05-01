@@ -31,6 +31,7 @@ interface SolverMessage {
     row: LineOfHints[]
     column: LineOfHints[]
   }
+  iterations?: number
 }
 
 declare module "worker!*" {
