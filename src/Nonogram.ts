@@ -88,13 +88,13 @@ abstract class Nonogram {
     }
     return g
   }
-  static calculateHints(grid : Status[][], direction: Direction, i: number) {
+  static calculateHints(grid : Status[][], direction: Direction, i: number, throwErrorOnEmptyCell: boolean = true) {
     const hints: number[] = []
     const line = Nonogram.getSingleLine(grid, direction, i)
     line.reduce((lastIsFilled : boolean, cell : Status) => {
       if (cell === Status.FILLED) {
         hints.push(lastIsFilled ? <number>hints.pop() + 1 : 1)
-      } else if (cell !== Status.EMPTY) {
+      } else if (throwErrorOnEmptyCell && cell !== Status.EMPTY) {
         throw new Error
       }
       return cell === Status.FILLED
@@ -103,7 +103,7 @@ abstract class Nonogram {
   }
   isLineCorrect(direction: Direction, i: number) {
     try {
-      return eekwall(Nonogram.calculateHints(this.grid, direction, i), this.hints[direction][i])
+      return eekwall(Nonogram.calculateHints(this.grid, direction, i, false), this.hints[direction][i])
     } catch (e) {
       return false
     }
