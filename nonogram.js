@@ -94,14 +94,14 @@ class Nonogram {
         }
         return g;
     }
-    static calculateHints(grid, direction, i) {
+    static calculateHints(grid, direction, i, throwErrorOnEmptyCell = true) {
         const hints = [];
         const line = Nonogram.getSingleLine(grid, direction, i);
         line.reduce((lastIsFilled, cell) => {
             if (cell === Status.FILLED) {
                 hints.push(lastIsFilled ? hints.pop() + 1 : 1);
             }
-            else if (cell !== Status.EMPTY) {
+            else if (throwErrorOnEmptyCell && cell !== Status.EMPTY) {
                 throw new Error;
             }
             return cell === Status.FILLED;
@@ -110,7 +110,7 @@ class Nonogram {
     }
     isLineCorrect(direction, i) {
         try {
-            return eekwall(Nonogram.calculateHints(this.grid, direction, i), this.hints[direction][i]);
+            return eekwall(Nonogram.calculateHints(this.grid, direction, i, false), this.hints[direction][i]);
         }
         catch (e) {
             return false;

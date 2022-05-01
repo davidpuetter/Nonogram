@@ -17,7 +17,6 @@ function gridToBase64Img(grid) {
   imgData.data.set(pix);
   ctx.putImageData(imgData, 0, 0);
   return canvas.toDataURL();
-
 }
 
 function gridFromImage(image, callback) {
@@ -53,6 +52,7 @@ function gridFromImage(image, callback) {
           grid[i][j] = 1 - pix[4* (i * image.width + j)] / 255;
         }
       }
+      console.debug(image.src, '->', grid);
       return callback(grid);
   }
 
@@ -67,5 +67,6 @@ function gridFromImage(image, callback) {
       grid[i][j] = (pix[k] + pix[k+1] + pix[k+2]) < tripleGreyThreshold ? 1 : 0;
     }
   }
+  console.debug(image.src, '->', grid);
   return callback(grid);
 }
