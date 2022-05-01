@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/Lucas-C/Nonogram.svg?branch=master)](https://travis-ci.com/Lucas-C/Nonogram)
+[![build status](https://github.com/Lucas-C/Nonogram/workflows/build/badge.svg)](https://github.com/Lucas-C/Nonogram/actions?query=branch%3Amaster)
 
 # Nonogram
 
