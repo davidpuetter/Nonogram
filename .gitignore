@@ -1,8 +1,0 @@
-/node_modules/
-/yarn.lock
-*.log
-.DS_Store
-.vscode
-
-/docs/grids-files.json
-/docs/nonogram.js
