@@ -286,9 +286,15 @@ function f(grid) {
         new nonogram.Game(row, column, 'adv-play1', { theme: { boldMeshGap: 0 } })
         new nonogram.Solver(row, column, 'adv-solve1', { onError: (error) => console.error(error) }).solve()
       } })
-  document.getElementById('pattern-download-link').onclick = function () { this.href = gridToBase64Img(window.advEditor1.grid) }
-  document.getElementById('hints-grid-download-link').onclick = function () { this.href = document.getElementById('adv-play1').toDataURL() }
-  document.getElementById('hints-as-json-link').onclick = function () { this.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(window.advEditor1.hints)) }
+  document.getElementById('pattern-download-link').onclick = function () {
+    this.href = gridToBase64Img(window.advEditor1.grid)
+  }
+  document.getElementById('hints-grid-download-link').onclick = function () {
+    this.href = document.getElementById('adv-play1').toDataURL()
+  }
+  document.getElementById('hints-as-json-link').onclick = function () {
+    this.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(window.advEditor1.hints))
+  }
 }
 document.getElementById('m').addEventListener('change', f)
 document.getElementById('n').addEventListener('change', f)
@@ -400,8 +406,7 @@ document.getElementById('btn-solve2').addEventListener('click', () => {
       delay: +document.getElementById('delay').value,
       onError: (error) => console.error(error),
       onSuccess(time) {
-        document.getElementById('timecost').innerHTML =
-        '<span>Solved in ' + time + 'ms.</span>'
+        document.getElementById('timecost').innerHTML = '<span>Solved in ' + time + 'ms.</span>'
       } }).solve()
 })</pre>
 
@@ -430,35 +435,30 @@ function rebuildQRCodeSolver() {
   var downloadPatternLink = document.getElementById('qrcode-pattern-download-link');
   var downloadJsonLink = document.getElementById('qrcode-hints-as-json-link');
   var downloadGridLink = document.getElementById('qrcode-hints-grid-download-link');
-  var solver = new nonogram.Solver(
-    hints.row,
-    hints.column,
-    'edit-qrcode',
-    {
-      onSuccess(duration, iterations, solved) {
-        downloadPatternLink.style.display = solved ? 'block' : 'none';
-        downloadJsonLink.style.display = solved ? 'block' : 'none';
-        downloadGridLink.style.display = solved ? 'block' : 'none';
-        if (solved) {
-          downloadPatternLink.onclick = function () {
-            this.href = gridToBase64Img(grid)
-          }
-          downloadJsonLink.onclick = function () {
-            this.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(hints))
-          }
-          class GameWithoutController extends nonogram.Game {
-            printController() {}
-          }
-          new GameWithoutController(hints.row, hints.column, 'hidden-game', {
-            theme: { boldMeshGap: 0 }
-          })
-          downloadGridLink.onclick = function () {
-            this.href = document.getElementById('hidden-game').toDataURL()
-          }
+  var solver = new nonogram.Solver(hints.row, hints.column, 'edit-qrcode', {
+    onSuccess(duration, iterations, solved) {
+      downloadPatternLink.style.display = solved ? 'block' : 'none';
+      downloadJsonLink.style.display = solved ? 'block' : 'none';
+      downloadGridLink.style.display = solved ? 'block' : 'none';
+      if (solved) {
+        downloadPatternLink.onclick = function () {
+          this.href = gridToBase64Img(grid)
         }
-      },
-    }
-  );
+        downloadJsonLink.onclick = function () {
+          this.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(hints))
+        }
+        class GameWithoutController extends nonogram.Game {
+          printController() {}
+        }
+        new GameWithoutController(hints.row, hints.column, 'hidden-game', {
+          theme: { boldMeshGap: 0 }
+        })
+        downloadGridLink.onclick = function () {
+          this.href = document.getElementById('hidden-game').toDataURL()
+        }
+      }
+    },
+  });
   solver.solve()
 }
 window.rebuildQRCodeSolver = rebuildQRCodeSolver
