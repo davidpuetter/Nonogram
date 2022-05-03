@@ -431,7 +431,7 @@ function rebuildQRCodeSolver() {
     grid.push(data.splice(0, size));
   }
   var hints = nonogram.Editor.getHints(grid);
-  // Checking that a unique solution exists:
+  // Displaying a Solver that will check if a unique solution exists:
   var downloadPatternLink = document.getElementById('qrcode-pattern-download-link');
   var downloadJsonLink = document.getElementById('qrcode-hints-as-json-link');
   var downloadGridLink = document.getElementById('qrcode-hints-grid-download-link');
@@ -440,19 +440,18 @@ function rebuildQRCodeSolver() {
       downloadPatternLink.style.display = solved ? 'block' : 'none';
       downloadJsonLink.style.display = solved ? 'block' : 'none';
       downloadGridLink.style.display = solved ? 'block' : 'none';
-      if (solved) {
+      if (solved) {  // == the grid has a unique solution
         downloadPatternLink.onclick = function () {
           this.href = gridToBase64Img(grid)
         }
         downloadJsonLink.onclick = function () {
           this.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(hints))
         }
+        // Using a hidden Game/canvas in order to produce a downloable grid:
         class GameWithoutController extends nonogram.Game {
-          printController() {}
+          printController() {}  // We hide the "controller", i.e. the bottom-right switch button
         }
-        new GameWithoutController(hints.row, hints.column, 'hidden-game', {
-          theme: { boldMeshGap: 0 }
-        })
+        new GameWithoutController(hints.row, hints.column, 'hidden-game', { theme: { boldMeshGap: 0 } })
         downloadGridLink.onclick = function () {
           this.href = document.getElementById('hidden-game').toDataURL()
         }
