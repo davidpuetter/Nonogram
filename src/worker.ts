@@ -1,6 +1,3 @@
-/// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
-/// <reference path="../node_modules/typescript/lib/lib.webworker.d.ts" />
-
 const WorkerStatus = {
   EMPTY: 0,
   FILLED: 1,
@@ -15,7 +12,6 @@ const cellValueMap = new Map<status, status>()
 cellValueMap.set(WorkerStatus.TEMP_FILLED, WorkerStatus.FILLED)
 cellValueMap.set(WorkerStatus.TEMP_EMPTY, WorkerStatus.EMPTY)
 cellValueMap.set(WorkerStatus.INCONSTANT, WorkerStatus.UNSET)
-
 
 function eekwall(arr1: any[], arr2: any[]) {
   return arr1.length === arr2.length &&

@@ -1,5 +1,3 @@
-import Solver from './Solver'
-import Editor from './Editor'
-import Game from './Game'
+import Solver from './Solver.js'
 
-export { Solver, Editor, Game }
+export default { Solver }

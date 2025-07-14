@@ -3,30 +3,18 @@
   "version": "0.8.0",
   "description": "Edit, play and solve nonograms.",
   "main": "docs/nonogram.min.js",
+  "type": "module",
   "scripts": {
     "start": "rollup -cw",
-    "build": "tsc && rollup -c && minify docs/nonogram.js --outFile docs/nonogram.min.js",
-    "gen-grids-list": "node generate_grids_list.js ../grids/"
+    "build": "tsc && rollup -c && minify docs/nonogram.js --outFile docs/nonogram.min.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Lucas-/Nonogram.git"
-  },
-  "keywords": [
-    "nonogram",
-    "puzzle"
-  ],
-  "author": "Zhou Qi <i@handsomeone.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Lucas-C/Nonogram/issues"
-  },
-  "homepage": "https://github.com/Lucas-C/Nonogram",
   "devDependencies": {
-    "babel-minify": "^0.5.1",
-    "rollup": "^0.50.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "babel-minify": "^0.5.2",
+    "rollup": "^4.44.2",
     "rollup-plugin-bundle-worker": "^0.1.0",
-    "rollup-plugin-typescript": "^0.8.1",
-    "typescript": "^2.6.1"
+    "typescript": "^5.8.3",
+    "web-worker": "^1.5.0"
   }
 }
